@@ -1,4 +1,3 @@
-from multiprocessing import allow_connection_pickling
 import requests
 
 from typing import Dict, List
