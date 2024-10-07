@@ -52,7 +52,7 @@ class PyRest:
         backoff_seconds: int | None = None,
         verbose: bool | None = None,
         logger=None,
-        allow_errors: bool = True):
+        allow_errors: bool = False):
         if rest_tries is None:
             rest_tries = self.rest_tries
         if retry_pause_seconds is None:
@@ -73,7 +73,7 @@ class PyRest:
             if not base_url:
                 raise ValueError(f"If url is not provided, base_url must be")
             if endpoint:
-                if not base_url.endswith('/') or not endpoint.startswith('/'):
+                if not base_url.endswith('/') and not endpoint.startswith('/'):
                     endpoint = '/' + endpoint
                 base_url += endpoint
             url = base_url
@@ -120,6 +120,7 @@ class PyRest:
                 call['timeout'] = timeout
 
         # Handle retries
+        resp = None
         while rest_tries > 0:
             try:
                 self.pre_try_mixin(request=call, method=method, rest_tries=rest_tries, retry_pause_seconds=retry_pause_seconds, backoff_seconds=backoff_seconds, verbose=verbose, logger=logger)
@@ -149,8 +150,8 @@ class PyRest:
         resp = self.make_call(method='get', **kwargs)
         try:
             content = resp.json()
-        except:
-            self.not_json_serializable_mixin(request=kwargs, response=resp, content=content, *args, **kwargs)
+        except Exception as err:
+            self.not_json_serializable_mixin(request=kwargs, err=err, response=resp, content=content, *args, **kwargs)
         return resp, content
 
     def post(self, *args, **kwargs):
@@ -158,8 +159,8 @@ class PyRest:
         resp = self.make_call(method='post', **kwargs)
         try:
             content = resp.json()
-        except:
-            self.not_json_serializable_mixin(request=kwargs, response=resp, content=content, *args, **kwargs)
+        except Exception as err:
+            self.not_json_serializable_mixin(request=kwargs, err=err, response=resp, content=content, *args, **kwargs)
         return resp, content
 
     def put(self, *args, **kwargs):
@@ -167,8 +168,8 @@ class PyRest:
         resp = self.make_call(method='put', **kwargs)
         try:
             content = resp.json()
-        except:
-            self.not_json_serializable_mixin(request=kwargs, response=resp, content=content, *args, **kwargs)
+        except Exception as err:
+            self.not_json_serializable_mixin(request=kwargs, err=err, response=resp, content=content, *args, **kwargs)
         return resp, content
 
     def patch(self, *args, **kwargs):
@@ -176,8 +177,8 @@ class PyRest:
         resp = self.make_call(method='patch', **kwargs)
         try:
             content = resp.json()
-        except:
-            self.not_json_serializable_mixin(request=kwargs, response=resp, content=content, *args, **kwargs)
+        except Exception as err:
+            self.not_json_serializable_mixin(request=kwargs, err=err, response=resp, content=content, *args, **kwargs)
         return resp, content
 
     def delete(self, *args, **kwargs):
@@ -185,8 +186,8 @@ class PyRest:
         resp = self.make_call(method='delete', **kwargs)
         try:
             content = resp.json()
-        except:
-            self.not_json_serializable_mixin(request=kwargs, response=resp, content=content, *args, **kwargs)
+        except Exception as err:
+            self.not_json_serializable_mixin(request=kwargs, err=err, response=resp, content=content, *args, **kwargs)
         return resp, content
 
     def to_json(self):
@@ -266,7 +267,7 @@ class PyRest:
     def failed_call_mixin(self, request, err, *args, **kwargs):
         pass
 
-    def not_json_serializable_mixin(self, request, err, *args, **kwargs):
+    def not_json_serializable_mixin(self, request, err, response, *args, **kwargs):
         pass
 
     def logger_mixin(self, level, message, logger):
@@ -302,7 +303,6 @@ class TestService(PyRest):
 
 
 if __name__ == '__main__':
-    x=1
     class MockLogger:
         def warning(self, *args, **kwargs):
             x=1
