@@ -111,9 +111,11 @@ class PyRest:
                 call['cookies'] = {}
             call['cookies'].update(cookies)
         if filepaths:
-            call['files'] = {}
-            for filename, file_path in filepaths.items():
-                call['files'][filename] = open(file_path, "rb")
+            call['files'] = {"file": open('/home/an006344/git/pipeline-orchestration-service/bin/resources/inference/inference_beta.yaml', "rb")}
+
+            # call['files'] = {}
+            # for filename, file_path in filepaths.items():
+            #     call['files'][filename] = open(file_path, "rb")
         if self.base_timeout is not None:
             call['timeout'] = self.base_timeout
             if timeout:
@@ -140,10 +142,7 @@ class PyRest:
                 self.retry_mixin(request=call, response=resp, method=method, rest_tries=rest_tries, retry_pause_seconds=retry_pause_seconds, backoff_seconds=backoff_seconds, verbose=verbose, logger=logger)
                 sleep(retry_pause_seconds)
                 retry_pause_seconds += backoff_seconds
-        if resp:
-            return resp
-        else:
-            return None
+        return resp
 
     def get(self, *args, **kwargs):
         content = None
@@ -283,74 +282,74 @@ class PyRest:
         return obj, dct
 
 
-# class TestService(PyRest):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.token = None
+class TestService(PyRest):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.token = None
 
-#     def _get_token(self):
-#         return 'Bearer TOKEN'
+    def _get_token(self):
+        return 'Bearer TOKEN'
 
-#     def pre_try_mixin(self, request, *args, **kwargs):
-#         if self.token is None:
-#             self.token = self._get_token()
-#         if 'headers' not in request:
-#             request['headers'] = {'Authorization': self.token}
+    def pre_try_mixin(self, request, *args, **kwargs):
+        if self.token is None:
+            self.token = self._get_token()
+        if 'headers' not in request:
+            request['headers'] = {'Authorization': self.token}
 
-#     def post_try_mixin(self, request, response, *args, **kwargs):
-#         if response.status_code == 401 or response.status_code == 403:
-#             self.token = None
+    def post_try_mixin(self, request, response, *args, **kwargs):
+        if response.status_code == 401 or response.status_code == 403:
+            self.token = None
 
 
-# if __name__ == '__main__':
-#     class MockLogger:
-#         def warning(self, *args, **kwargs):
-#             x=1
-#     test = PyRest(base_url='https://httpbin.org/get', retries=2)
-#     service = TestService(base_url='https://httpbin.org', retries=2, verbose=True, logger=MockLogger())
-#     # resp, content = test.get()
-#     # resp, content = service.get()
-#     # params = {'key': "value"}
-#     # resp, content = service.get(endpoint='get', params=params)
-#     # body = {'key': "value"}
-#     # resp, content = service.post(endpoint='post', json=body)
-#     # resp, content = service.post(endpoint='post', data=body)
-#     # files = 'txt.txt'
-#     # resp, content = service.post(endpoint='post', filepaths=files)
-#     # files = {'example_file': 'txt.txt'}
-#     # resp, content = service.post(endpoint='post', filepaths=files)
-#     # cookies = {'key': 'value'}
-#     # resp, content = service.post(endpoint='post', cookies=cookies)
+if __name__ == '__main__':
+    class MockLogger:
+        def warning(self, *args, **kwargs):
+            x=1
+    test = PyRest(base_url='https://httpbin.org/get', retries=2)
+    service = TestService(base_url='https://httpbin.org', retries=2, verbose=True, logger=MockLogger())
+    # resp, content = test.get()
+    # resp, content = service.get()
+    # params = {'key': "value"}
+    # resp, content = service.get(endpoint='get', params=params)
+    # body = {'key': "value"}
+    # resp, content = service.post(endpoint='post', json=body)
+    # resp, content = service.post(endpoint='post', data=body)
+    # files = 'txt.txt'
+    # resp, content = service.post(endpoint='post', filepaths=files)
+    # files = {'example_file': 'txt.txt'}
+    # resp, content = service.post(endpoint='post', filepaths=files)
+    # cookies = {'key': 'value'}
+    # resp, content = service.post(endpoint='post', cookies=cookies)
 
-#     params = {'key': "value"}
-#     body = {'key': "value"}
-#     files = {'example_file': 'txt.txt'}
-#     cookies = {'key': 'value'}
+    params = {'key': "value"}
+    body = {'key': "value"}
+    files = {'example_file': 'txt.txt'}
+    cookies = {'key': 'value'}
 
-#     json_content = service.generate_request_json(
-#         method='post',
-#         endpoint='post',
-#         params=params,
-#         json=body,
-#         filepaths=files,
-#         cookies=cookies)
-#     rest, content = PyRest.run_request_json(json_content)
+    json_content = service.generate_request_json(
+        method='post',
+        endpoint='post',
+        params=params,
+        json=body,
+        filepaths=files,
+        cookies=cookies)
+    rest, content = PyRest.run_request_json(json_content)
 
-#     x=1
+    x=1
 
-# """
-# https://requests.readthedocs.io/en/latest/user/authentication/
+"""
+https://requests.readthedocs.io/en/latest/user/authentication/
 
-# import requests
-# class MyAuth(requests.auth.AuthBase):
-#     def __call__(self, r):
-#         # Implement my authentication
-#         return r
+import requests
+class MyAuth(requests.auth.AuthBase):
+    def __call__(self, r):
+        # Implement my authentication
+        return r
 
-# url = 'https://httpbin.org/get'
-# requests.get(url, auth=MyAuth())
-# """
+url = 'https://httpbin.org/get'
+requests.get(url, auth=MyAuth())
+"""
 
-# x=1
+x=1
 
 
